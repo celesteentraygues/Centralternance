@@ -517,7 +517,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 **Files:**
 - Create: `app/prompts/commun.md`, `app/prompts/lettre_sans_modele.md`, `app/prompts/lettre_avec_modele.md`, `app/prompts/spontane.md`, `app/prompts.py`, `tests/test_prompts.py`
 
-> Modification du 2026-09-11 (après implémentation initiale) : la lettre de référence par défaut (`lettre_exemple.md`) est abandonnée — l'auteur n'en fournit pas. Le flux « sans modèle » n'injecte plus aucune section de référence.
+> Modification du 2026-09-11 (après implémentation initiale) : la lettre de référence par défaut (`lettre_exemple.md`) est abandonnée — l'auteur n'en fournit pas. Le flux « sans modèle » n'injecte plus aucune section de référence. Le même jour, l'auteur a fourni son propre prompt lettre : il remplace intégralement `lettre_sans_modele.md`, et `commun.md` est réduit aux règles transverses (plus d'interdiction de titre, la lettre commence par une ligne « Objet »). Le texte de référence est celui du dépôt (`app/prompts/`), pas celui ci-dessous.
 
 **Interfaces:**
 - Consumes: `app.schemas.GenerateRequest`, `app.config.PROMPTS_DIR`
