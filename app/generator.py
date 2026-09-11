@@ -1,6 +1,5 @@
 from typing import Any, Protocol
 
-from openai import OpenAIError
 from pydantic import ValidationError
 
 from app.config import (
@@ -35,7 +34,7 @@ def _call(client: ChatClient, messages: list[Message], *, json_mode: bool = Fals
             timeout=OPENAI_TIMEOUT_SECONDS,
             **extra,
         )
-    except OpenAIError as exc:
+    except Exception as exc:
         raise GenerationError(MSG_GENERATION) from exc
 
     content = completion.choices[0].message.content

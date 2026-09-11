@@ -28,7 +28,7 @@ Les instructions données à l'IA sont dans `app/prompts/` :
 
 | Fichier | Rôle |
 |---|---|
-| `commun.md` | Règles valables pour tout (ton, interdits, ne rien inventer) |
+| `commun.md` | Règles valables pour tout (ne rien inventer, rythme/date/durée, pas de texte hors contenu) |
 | `lettre_sans_modele.md` | Lettre quand l'étudiant n'a pas fourni de modèle |
 | `lettre_avec_modele.md` | Lettre quand l'étudiant a fourni un modèle |
 | `spontane.md` | Objet + email + message LinkedIn (sortie JSON) |

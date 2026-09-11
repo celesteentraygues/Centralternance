@@ -67,3 +67,9 @@ def test_reponse_vide_leve_generation_error():
     client = FakeOpenAI(content=None)
     with pytest.raises(GenerationError):
         generate_lettre(client, LETTRE)
+
+
+def test_exception_inattendue_leve_generation_error():
+    client = FakeOpenAI(error=TypeError("kwarg inconnu"))
+    with pytest.raises(GenerationError):
+        generate_lettre(client, LETTRE)

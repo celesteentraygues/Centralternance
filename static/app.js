@@ -26,7 +26,6 @@ const state = {
   session: loadSession(),
   pendingCV: null,     // { text, truncated } uploadé mais pas encore validé par "Commencer"
   lastType: null,      // "lettre" | "spontane"
-  lastBody: null,      // dernière requête envoyée à /api/generate (pour Réessayer)
 };
 
 // ---------- Navigation ----------
@@ -237,7 +236,6 @@ async function runGeneration(body, btn, errEl) {
   clearError(errEl);
   setLoading(btn, true, "Génération en cours…");
   state.lastType = body.type;
-  state.lastBody = body;
   try {
     const result = await api("/api/generate", {
       method: "POST",
@@ -275,9 +273,13 @@ async function copyFrom(inputId, btn) {
     await navigator.clipboard.writeText(text);
     btn.textContent = "Copié !";
   } catch {
-    $(inputId).select();
-    document.execCommand("copy");
-    btn.textContent = "Copié !";
+    try {
+      $(inputId).select();
+      document.execCommand("copy");
+      btn.textContent = "Copié !";
+    } catch {
+      btn.textContent = "Copie impossible — sélectionnez le texte";
+    }
   }
   setTimeout(() => { btn.textContent = original; }, 1500);
 }

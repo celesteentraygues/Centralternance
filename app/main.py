@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.staticfiles import StaticFiles
 from openai import OpenAI
+from starlette.concurrency import run_in_threadpool
 
 from app import cv_parser
 from app.config import MAX_PDF_BYTES, MSG_NON_PDF, MSG_PDF_TROP_GROS, STATIC_DIR
@@ -44,11 +45,13 @@ async def parse_cv(file: UploadFile = File(...)) -> ParseCVResponse:
     filename = (file.filename or "").lower()
     if file.content_type != "application/pdf" and not filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail=MSG_NON_PDF)
+    if file.size is not None and file.size > MAX_PDF_BYTES:
+        raise HTTPException(status_code=413, detail=MSG_PDF_TROP_GROS)
     data = await file.read()
     if len(data) > MAX_PDF_BYTES:
         raise HTTPException(status_code=413, detail=MSG_PDF_TROP_GROS)
     try:
-        parsed = cv_parser.extract_text(data)
+        parsed = await run_in_threadpool(cv_parser.extract_text, data)
     except cv_parser.CVParseError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return ParseCVResponse(text=parsed.text, truncated=parsed.truncated)
