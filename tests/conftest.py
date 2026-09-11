@@ -1,6 +1,8 @@
 """Fixtures partagées. make_pdf construit un PDF minimal valide contenant `text`
 (ASCII uniquement, sans parenthèses) sur une page, police Helvetica."""
 
+from types import SimpleNamespace
+
 
 def make_pdf(text: str) -> bytes:
     stream = f"BT /F1 12 Tf 50 750 Td ({text}) Tj ET".encode("latin-1")
@@ -27,3 +29,21 @@ def make_pdf(text: str) -> bytes:
         f"startxref\n{xref_pos}\n%%EOF\n"
     ).encode()
     return bytes(out)
+
+
+class FakeOpenAI:
+    """Imite openai.OpenAI : client.chat.completions.create(**kwargs).
+    Renvoie `content`, ou lève `error` si fourni. Enregistre les kwargs dans .calls."""
+
+    def __init__(self, content: str | None = "réponse de test", error: Exception | None = None):
+        self.content = content
+        self.error = error
+        self.calls: list[dict] = []
+        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self._create))
+
+    def _create(self, **kwargs):
+        self.calls.append(kwargs)
+        if self.error is not None:
+            raise self.error
+        message = SimpleNamespace(content=self.content)
+        return SimpleNamespace(choices=[SimpleNamespace(message=message)])
