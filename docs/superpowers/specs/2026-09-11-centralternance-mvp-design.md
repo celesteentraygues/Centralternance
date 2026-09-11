@@ -24,7 +24,7 @@ Critères de succès du MVP :
 - Flux **Offre** : coller l'offre → lettre de motivation.
 - Flux **Spontané** : formulaire (contact, entreprise, poste du contact, poste visé) → objet + email + message LinkedIn, générés ensemble.
 - Résultat éditable, bouton Copier par bloc, export PDF de la lettre.
-- Après export : retour au formulaire du même type (vide), avec bouton Menu.
+- Après génération : bouton « Nouvelle candidature » qui rouvre le formulaire du même type (vide), et bouton Menu (cf. §7 ; le retour n'est pas automatique, une impression peut être annulée).
 - Français uniquement.
 - Modèle IA : GPT-4o via l'API OpenAI, appelé uniquement côté serveur.
 
