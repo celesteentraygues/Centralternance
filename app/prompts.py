@@ -48,7 +48,8 @@ def build_lettre_prompt(req: GenerateRequest) -> list[Message]:
 
 def build_spontane_prompt(req: GenerateRequest) -> list[Message]:
     c = req.contact
-    assert c is not None  # garanti par le validateur de GenerateRequest
+    if c is None:  # garanti par le validateur de GenerateRequest
+        raise ValueError("build_spontane_prompt requiert req.contact")
     system = f"{_load('commun')}\n\n{_load('spontane')}"
     return _messages(
         system,
