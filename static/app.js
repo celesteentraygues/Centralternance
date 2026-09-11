@@ -95,7 +95,6 @@ function fillOnboardingFromSession() {
   const s = state.session;
   const status = $("cv-status");
   if (s && s.cv) {
-    $("cs-rythme").value = s.cs.rythme;
     $("cs-debut").value = s.cs.debut;
     $("cs-duree").value = s.cs.duree;
     $("modele").value = s.modele || "";
@@ -148,7 +147,6 @@ $("form-onboarding").addEventListener("submit", (event) => {
     cv: cv.text,
     truncated: cv.truncated,
     cs: {
-      rythme: $("cs-rythme").value.trim(),
       debut: $("cs-debut").value.trim(),
       duree: $("cs-duree").value.trim(),
     },

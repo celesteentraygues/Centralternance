@@ -2,7 +2,7 @@ from app.config import PROMPTS_DIR
 from app.prompts import build_lettre_prompt, build_spontane_prompt
 from app.schemas import GenerateRequest
 
-CS = {"rythme": "3 semaines / 1 semaine", "debut": "septembre 2027", "duree": "3 ans"}
+CS = {"debut": "septembre 2027", "duree": "3 ans"}
 CONTACT = {
     "nom": "Marie Martin",
     "entreprise": "Thales",
@@ -59,6 +59,7 @@ def test_lettre_contient_cv_cs_et_offre():
     assert "OFFRE DE TEST" in user
     for valeur in CS.values():
         assert valeur in user
+    assert "Rythme" not in user
 
 
 def test_spontane_contient_cv_cs_et_contact():

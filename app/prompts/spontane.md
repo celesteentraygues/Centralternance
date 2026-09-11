@@ -6,7 +6,7 @@ Le candidat souhaite contacter une personne dans une entreprise pour une candida
 - Salutation : « Bonjour Prénom, » (prénom seul, extrait du nom du contact).
 - Une phrase qui explique pourquoi cette personne précisément (son poste, son équipe).
 - Le poste visé et une ou deux compétences du CV qui le justifient.
-- Le cadre : alternance CentraleSupélec, rythme, date de début, durée.
+- Le cadre : alternance CentraleSupélec, date de début, durée.
 - Une demande claire et unique : un échange de quinze minutes.
 - Signature : « Bien cordialement, » suivi du nom du candidat tel qu'il apparaît dans le CV.
 

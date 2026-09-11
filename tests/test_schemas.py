@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from app.config import MAX_CV_CHARS, MAX_OFFRE_CHARS
 from app.schemas import BlocCS, Contact, GenerateRequest
 
-CS = {"rythme": "3 semaines / 1 semaine", "debut": "septembre 2027", "duree": "3 ans"}
+CS = {"debut": "septembre 2027", "duree": "3 ans"}
 CONTACT = {
     "nom": "Marie Martin",
     "entreprise": "Thales",
@@ -23,6 +23,10 @@ def test_spontane_valide():
     req = GenerateRequest(type="spontane", cv="Mon CV", cs=CS, contact=CONTACT)
     assert isinstance(req.contact, Contact)
     assert isinstance(req.cs, BlocCS)
+
+
+def test_bloc_cs_ne_contient_que_debut_et_duree():
+    assert set(BlocCS.model_fields) == {"debut", "duree"}
 
 
 def test_lettre_sans_offre_est_refusee():

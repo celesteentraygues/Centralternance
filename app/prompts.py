@@ -10,7 +10,6 @@ def _load(name: str) -> str:
 
 def _bloc_cs(req: GenerateRequest) -> str:
     return (
-        f"Rythme d'alternance : {req.cs.rythme}\n"
         f"Date de début : {req.cs.debut}\n"
         f"Durée du contrat : {req.cs.duree}"
     )

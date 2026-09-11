@@ -8,7 +8,7 @@ from app.generator import GenerationError, generate_lettre, generate_spontane
 from app.schemas import GenerateRequest, SpontaneResponse
 from tests.conftest import FakeOpenAI
 
-CS = {"rythme": "3 semaines / 1 semaine", "debut": "septembre 2027", "duree": "3 ans"}
+CS = {"debut": "septembre 2027", "duree": "3 ans"}
 CONTACT = {
     "nom": "Marie Martin",
     "entreprise": "Thales",

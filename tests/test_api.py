@@ -8,7 +8,7 @@ from app.config import MAX_PDF_BYTES, MSG_GENERATION, MSG_NON_PDF, MSG_PDF_ILLIS
 from app.main import app
 from tests.conftest import FakeOpenAI, make_pdf
 
-CS = {"rythme": "3 semaines / 1 semaine", "debut": "septembre 2027", "duree": "3 ans"}
+CS = {"debut": "septembre 2027", "duree": "3 ans"}
 CONTACT = {
     "nom": "Marie Martin",
     "entreprise": "Thales",

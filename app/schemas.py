@@ -11,7 +11,6 @@ from app.config import (
 
 
 class BlocCS(BaseModel):
-    rythme: str = Field(max_length=MAX_CONTACT_FIELD_CHARS)
     debut: str = Field(max_length=MAX_CONTACT_FIELD_CHARS)
     duree: str = Field(max_length=MAX_CONTACT_FIELD_CHARS)
 

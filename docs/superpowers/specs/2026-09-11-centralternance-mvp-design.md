@@ -113,7 +113,7 @@ Corps JSON :
 {
   "type": "lettre" | "spontane",
   "cv": "texte du CV",
-  "cs": { "rythme": "...", "debut": "...", "duree": "..." },
+  "cs": { "debut": "...", "duree": "..." },
   "modele": "texte ou chaîne vide",
   "offre": "texte de l'offre",            // requis si type = lettre
   "contact": {                            // requis si type = spontane
@@ -134,7 +134,7 @@ Réponses :
 
 Les quatre fichiers `.md` sont la seule chose que l'auteur modifiera au quotidien. Aucune logique n'y est codée : `prompts.py` les concatène tels quels.
 
-- `commun.md` — règles transverses : ton, formulations interdites, ne jamais inventer d'expérience absente du CV, toujours mentionner le rythme et la date de début CentraleSupélec.
+- `commun.md` — règles transverses : ton, formulations interdites, ne jamais inventer d'expérience absente du CV, toujours mentionner la date de début et la durée CentraleSupélec (le rythme d'alternance a été retiré le 2026-09-11 : il change chaque année).
 - `lettre_sans_modele.md` — structure imposée, longueur cible. (Décision du 2026-09-11 : pas de lettre de référence par défaut ; l'auteur n'en fournit pas.)
 - `lettre_avec_modele.md` — comment exploiter le modèle de l'étudiant : conserver ton, structure et tournures ; remplacer tout contenu spécifique à une autre entreprise ; appliquer quand même les règles communes.
 - `spontane.md` — contraintes LinkedIn (court, direct, « Bonjour Prénom »), email (formel, objet accrocheur, demande claire en fin de message) ; impose la sortie JSON `{ "objet", "email", "linkedin" }`.
@@ -145,7 +145,7 @@ Une première version de chaque fichier est écrite lors de l'implémentation po
 
 Une page, cinq sections `<section id="screen-…">`, une seule visible à la fois.
 
-1. **Onboarding** — input fichier PDF (obligatoire) ; trois champs CS pré-remplis (« 3 semaines entreprise / 1 semaine école », « septembre 2027 », « 3 ans ») ; textarea modèle (facultatif) ; bouton « Commencer » (désactivé tant que le CV n'est pas parsé).
+1. **Onboarding** — input fichier PDF (obligatoire) ; deux champs CS pré-remplis (« septembre 2027 », « 3 ans ») ; textarea modèle (facultatif) ; bouton « Commencer » (désactivé tant que le CV n'est pas parsé).
 2. **Menu** — deux cartes « Répondre à une offre » / « Candidature spontanée » ; lien « Modifier mon CV / mes infos » → écran 1 avec les champs CS et le modèle pré-remplis ; le CV actuel est conservé sauf si un nouveau fichier est uploadé (mention « CV chargé : conservé » affichée).
 3. **Offre** — textarea « Collez l'offre ici » ; bouton « Générer la lettre » (désactivé si vide) ; lien « Menu ».
 4. **Spontané** — champs Prénom Nom, Entreprise, Son poste, Poste visé ; bouton « Générer les messages » (désactivé si un champ est vide) ; lien « Menu ».

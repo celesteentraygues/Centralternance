@@ -10,6 +10,6 @@ Ce que tu remplaces :
 - les exemples du CV qui ne sont pas pertinents pour cette offre, par ceux qui le sont.
 
 Ce que tu ajoutes si le modèle ne le contient pas :
-- le rythme d'alternance, la date de début et la durée fournis dans les informations CentraleSupélec.
+- la date de début et la durée fournies dans les informations CentraleSupélec.
 
 Le résultat doit se lire comme une lettre écrite par le candidat lui-même pour cette offre précise, pas comme un modèle recyclé.
