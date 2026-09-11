@@ -27,12 +27,12 @@ def test_format_des_messages():
     assert all(isinstance(m["content"], str) and m["content"] for m in messages)
 
 
-def test_sans_modele_utilise_les_instructions_sans_modele_et_l_exemple():
+def test_sans_modele_utilise_les_instructions_sans_modele():
     system, user = (m["content"] for m in build_lettre_prompt(_lettre()))
     assert _read("commun") in system
     assert _read("lettre_sans_modele") in system
     assert _read("lettre_avec_modele") not in system
-    assert _read("lettre_exemple") in user
+    assert "## Modèle de lettre" not in user
 
 
 def test_avec_modele_utilise_les_instructions_avec_modele_et_le_modele():
@@ -40,7 +40,12 @@ def test_avec_modele_utilise_les_instructions_avec_modele_et_le_modele():
     assert _read("lettre_avec_modele") in system
     assert _read("lettre_sans_modele") not in system
     assert "MON MODELE PERSO" in user
-    assert _read("lettre_exemple") not in user
+
+
+def test_plus_de_lettre_exemple():
+    assert not (PROMPTS_DIR / "lettre_exemple.md").exists()
+    _, user = (m["content"] for m in build_lettre_prompt(_lettre()))
+    assert "Lettre de référence" not in user
 
 
 def test_modele_blanc_compte_comme_absent():

@@ -25,25 +25,16 @@ def _messages(system: str, user_sections: list[str]) -> list[Message]:
 
 def build_lettre_prompt(req: GenerateRequest) -> list[Message]:
     modele = req.modele.strip()
-    if modele:
-        specifique = _load("lettre_avec_modele")
-        reference = f"## Modèle de lettre écrit par le candidat\n{modele}"
-    else:
-        specifique = _load("lettre_sans_modele")
-        reference = (
-            "## Lettre de référence (niveau de qualité attendu, ne pas recopier)\n"
-            f"{_load('lettre_exemple')}"
-        )
+    specifique = _load("lettre_avec_modele" if modele else "lettre_sans_modele")
     system = f"{_load('commun')}\n\n{specifique}"
-    return _messages(
-        system,
-        [
-            f"## CV du candidat\n{req.cv}",
-            f"## Informations CentraleSupélec\n{_bloc_cs(req)}",
-            reference,
-            f"## Offre d'alternance\n{(req.offre or '').strip()}",
-        ],
-    )
+    sections = [
+        f"## CV du candidat\n{req.cv}",
+        f"## Informations CentraleSupélec\n{_bloc_cs(req)}",
+    ]
+    if modele:
+        sections.append(f"## Modèle de lettre écrit par le candidat\n{modele}")
+    sections.append(f"## Offre d'alternance\n{(req.offre or '').strip()}")
+    return _messages(system, sections)
 
 
 def build_spontane_prompt(req: GenerateRequest) -> list[Message]:
