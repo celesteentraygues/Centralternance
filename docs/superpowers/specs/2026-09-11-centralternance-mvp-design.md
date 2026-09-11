@@ -65,7 +65,6 @@ centralternance/
 │       ├── commun.md
 │       ├── lettre_sans_modele.md
 │       ├── lettre_avec_modele.md
-│       ├── lettre_exemple.md
 │       └── spontane.md
 ├── static/
 │   ├── index.html           # les 5 écrans
@@ -86,7 +85,7 @@ centralternance/
 ### Responsabilités
 
 - **`cv_parser.py`** — `extract_text(pdf_bytes) -> str`. Concatène le texte de toutes les pages, normalise les espaces, tronque à `MAX_CV_CHARS` (15 000). Lève `CVParseError` si le fichier n'est pas un PDF valide ou si le texte extrait est vide (PDF scanné).
-- **`prompts.py`** — `build_lettre_prompt(ctx) -> list[Message]` et `build_spontane_prompt(ctx) -> list[Message]`. Lit les fichiers `.md` une fois au démarrage. Choisit `lettre_avec_modele.md` si `ctx.modele` est non vide, sinon `lettre_sans_modele.md` + `lettre_exemple.md`. Le message système = `commun.md` + fichier spécifique ; le message utilisateur = les données (CV, bloc CS, modèle/exemple, offre ou formulaire).
+- **`prompts.py`** — `build_lettre_prompt(ctx) -> list[Message]` et `build_spontane_prompt(ctx) -> list[Message]`. Lit les fichiers `.md` une fois au démarrage. Choisit `lettre_avec_modele.md` si `ctx.modele` est non vide, sinon `lettre_sans_modele.md`. Le message système = `commun.md` + fichier spécifique ; le message utilisateur = les données (CV, bloc CS, modèle s'il existe, offre ou formulaire).
 - **`generator.py`** — `generate_lettre(ctx) -> str` et `generate_spontane(ctx) -> SpontaneResult`. Appelle `chat.completions.create` avec `model="gpt-4o"`, `temperature=0.7`, `max_tokens=1200`. Pour le spontané, `response_format={"type": "json_object"}` et validation Pydantic du JSON. Lève `GenerationError` sur toute erreur OpenAI ou JSON invalide.
 - **`main.py`** — routes ci-dessous, gestion des erreurs → codes HTTP, sert `static/` à la racine.
 - **`app.js`** — un objet `session` (cv, cs, modele) synchronisé avec `sessionStorage` ; une fonction `show(screen)` ; deux fonctions `generateLettre()` / `generateSpontane()` ; `copy(el)` ; `printLettre()`.
@@ -133,12 +132,11 @@ Réponses :
 
 ## 6. Prompts
 
-Les cinq fichiers `.md` sont la seule chose que l'auteur modifiera au quotidien. Aucune logique n'y est codée : `prompts.py` les concatène tels quels.
+Les quatre fichiers `.md` sont la seule chose que l'auteur modifiera au quotidien. Aucune logique n'y est codée : `prompts.py` les concatène tels quels.
 
 - `commun.md` — règles transverses : ton, formulations interdites, ne jamais inventer d'expérience absente du CV, toujours mentionner le rythme et la date de début CentraleSupélec.
-- `lettre_sans_modele.md` — structure imposée, longueur cible ; précise que `lettre_exemple.md` est une **référence de qualité** (niveau, structure, densité) et non un texte à recopier.
+- `lettre_sans_modele.md` — structure imposée, longueur cible. (Décision du 2026-09-11 : pas de lettre de référence par défaut ; l'auteur n'en fournit pas.)
 - `lettre_avec_modele.md` — comment exploiter le modèle de l'étudiant : conserver ton, structure et tournures ; remplacer tout contenu spécifique à une autre entreprise ; appliquer quand même les règles communes.
-- `lettre_exemple.md` — la lettre par défaut fournie par l'auteur (placeholder en attendant).
 - `spontane.md` — contraintes LinkedIn (court, direct, « Bonjour Prénom »), email (formel, objet accrocheur, demande claire en fin de message) ; impose la sortie JSON `{ "objet", "email", "linkedin" }`.
 
 Une première version de chaque fichier est écrite lors de l'implémentation pour que l'application soit testable ; l'auteur les remplacera ensuite sans toucher au code.
@@ -178,7 +176,7 @@ Estimation : ~4 000 tokens en entrée + ~600 en sortie par lettre ≈ 0,4 centim
 ## 10. Tests
 
 - `test_cv_parser.py` — extraction sur `fixtures/cv_test.pdf` ; erreur sur un fichier texte renommé `.pdf` ; erreur sur un PDF sans texte ; troncature au-delà de `MAX_CV_CHARS`.
-- `test_prompts.py` — avec modèle → `lettre_avec_modele.md` utilisé et exemple absent ; sans modèle → `lettre_sans_modele.md` + exemple présents ; bloc CS et offre présents dans le message utilisateur ; spontané contient les quatre champs contact.
+- `test_prompts.py` — avec modèle → `lettre_avec_modele.md` utilisé et modèle présent dans le message utilisateur ; sans modèle → `lettre_sans_modele.md` utilisé ; bloc CS et offre présents dans le message utilisateur ; spontané contient les quatre champs contact.
 - `test_generator.py` — client OpenAI mocké : lettre renvoyée telle quelle ; spontané parse un JSON valide ; JSON invalide → `GenerationError` ; exception OpenAI → `GenerationError`.
 - `test_api.py` — `/api/parse-cv` 200 / 400 / 413 ; `/api/generate` 200 lettre, 200 spontané, 422 champ manquant ou trop long, 502 quand le générateur lève.
 

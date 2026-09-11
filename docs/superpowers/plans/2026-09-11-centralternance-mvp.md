@@ -515,7 +515,9 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 4 : Fichiers de prompts et assemblage
 
 **Files:**
-- Create: `app/prompts/commun.md`, `app/prompts/lettre_sans_modele.md`, `app/prompts/lettre_avec_modele.md`, `app/prompts/lettre_exemple.md`, `app/prompts/spontane.md`, `app/prompts.py`, `tests/test_prompts.py`
+- Create: `app/prompts/commun.md`, `app/prompts/lettre_sans_modele.md`, `app/prompts/lettre_avec_modele.md`, `app/prompts/spontane.md`, `app/prompts.py`, `tests/test_prompts.py`
+
+> Modification du 2026-09-11 (après implémentation initiale) : la lettre de référence par défaut (`lettre_exemple.md`) est abandonnée — l'auteur n'en fournit pas. Le flux « sans modèle » n'injecte plus aucune section de référence.
 
 **Interfaces:**
 - Consumes: `app.schemas.GenerateRequest`, `app.config.PROMPTS_DIR`
@@ -552,8 +554,6 @@ Structure imposée, 4 paragraphes, 250 à 350 mots au total :
 4. Conclusion : disponibilité pour un échange, formule de politesse sobre (« Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées. »).
 
 Commence par « Madame, Monsieur, » sauf si l'offre donne le nom d'un destinataire.
-
-La lettre de référence fournie indique le niveau de qualité, la densité et le ton attendus. Ne recopie ni ses phrases ni ses exemples : elle concerne un autre candidat et une autre entreprise.
 ```
 
 `app/prompts/lettre_avec_modele.md` :
@@ -574,20 +574,6 @@ Ce que tu ajoutes si le modèle ne le contient pas :
 - le rythme d'alternance, la date de début et la durée fournis dans les informations CentraleSupélec.
 
 Le résultat doit se lire comme une lettre écrite par le candidat lui-même pour cette offre précise, pas comme un modèle recyclé.
-```
-
-`app/prompts/lettre_exemple.md` :
-
-```markdown
-Madame, Monsieur,
-
-Votre offre d'alternance en ingénierie logicielle embarquée a retenu mon attention pour une raison précise : vous cherchez quelqu'un capable de faire le lien entre le développement bas niveau et la validation sur banc d'essai, ce qui correspond exactement à ce que j'ai fait cette année.
-
-Lors de mon stage chez un équipementier automobile, j'ai développé en C un module de diagnostic pour un calculateur de freinage, puis conçu les scénarios de test qui ont permis de détecter deux défauts avant la mise en production. En parallèle, mon projet de deuxième année à CentraleSupélec m'a amené à concevoir un système de mesure temps réel sur STM32, de la carte au traitement des données en Python. Ces deux expériences m'ont appris à livrer du code qui tourne sur du matériel réel, avec des contraintes de temps et de fiabilité.
-
-J'intègre en septembre 2027 le cursus ingénieur par apprentissage de CentraleSupélec, sur un rythme de trois semaines en entreprise pour une semaine à l'école, pour une durée de trois ans. Ce rythme permet une présence longue et continue sur vos projets.
-
-Je serais heureux d'échanger avec vous sur la manière dont je pourrais contribuer à votre équipe. Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.
 ```
 
 `app/prompts/spontane.md` :
@@ -644,12 +630,12 @@ def test_format_des_messages():
     assert all(isinstance(m["content"], str) and m["content"] for m in messages)
 
 
-def test_sans_modele_utilise_les_instructions_sans_modele_et_l_exemple():
+def test_sans_modele_utilise_les_instructions_sans_modele():
     system, user = (m["content"] for m in build_lettre_prompt(_lettre()))
     assert _read("commun") in system
     assert _read("lettre_sans_modele") in system
     assert _read("lettre_avec_modele") not in system
-    assert _read("lettre_exemple") in user
+    assert "## Modèle de lettre" not in user
 
 
 def test_avec_modele_utilise_les_instructions_avec_modele_et_le_modele():
@@ -657,7 +643,6 @@ def test_avec_modele_utilise_les_instructions_avec_modele_et_le_modele():
     assert _read("lettre_avec_modele") in system
     assert _read("lettre_sans_modele") not in system
     assert "MON MODELE PERSO" in user
-    assert _read("lettre_exemple") not in user
 
 
 def test_modele_blanc_compte_comme_absent():
@@ -720,30 +705,22 @@ def _messages(system: str, user_sections: list[str]) -> list[Message]:
 
 def build_lettre_prompt(req: GenerateRequest) -> list[Message]:
     modele = req.modele.strip()
-    if modele:
-        specifique = _load("lettre_avec_modele")
-        reference = f"## Modèle de lettre écrit par le candidat\n{modele}"
-    else:
-        specifique = _load("lettre_sans_modele")
-        reference = (
-            "## Lettre de référence (niveau de qualité attendu, ne pas recopier)\n"
-            f"{_load('lettre_exemple')}"
-        )
+    specifique = _load("lettre_avec_modele" if modele else "lettre_sans_modele")
     system = f"{_load('commun')}\n\n{specifique}"
-    return _messages(
-        system,
-        [
-            f"## CV du candidat\n{req.cv}",
-            f"## Informations CentraleSupélec\n{_bloc_cs(req)}",
-            reference,
-            f"## Offre d'alternance\n{(req.offre or '').strip()}",
-        ],
-    )
+    sections = [
+        f"## CV du candidat\n{req.cv}",
+        f"## Informations CentraleSupélec\n{_bloc_cs(req)}",
+    ]
+    if modele:
+        sections.append(f"## Modèle de lettre écrit par le candidat\n{modele}")
+    sections.append(f"## Offre d'alternance\n{(req.offre or '').strip()}")
+    return _messages(system, sections)
 
 
 def build_spontane_prompt(req: GenerateRequest) -> list[Message]:
     c = req.contact
-    assert c is not None  # garanti par le validateur de GenerateRequest
+    if c is None:  # garanti par le validateur de GenerateRequest
+        raise ValueError("build_spontane_prompt requiert req.contact")
     system = f"{_load('commun')}\n\n{_load('spontane')}"
     return _messages(
         system,
@@ -1927,7 +1904,6 @@ Les instructions données à l'IA sont dans `app/prompts/` :
 | `commun.md` | Règles valables pour tout (ton, interdits, ne rien inventer) |
 | `lettre_sans_modele.md` | Lettre quand l'étudiant n'a pas fourni de modèle |
 | `lettre_avec_modele.md` | Lettre quand l'étudiant a fourni un modèle |
-| `lettre_exemple.md` | Lettre de référence utilisée quand il n'y a pas de modèle |
 | `spontane.md` | Objet + email + message LinkedIn (sortie JSON) |
 
 Ils sont relus à chaque requête : modifiez-les, rechargez la page, c'est pris en compte. Ne changez pas les clés JSON demandées dans `spontane.md` (`objet`, `email`, `linkedin`).
