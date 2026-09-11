@@ -1,3 +1,132 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><title>Centralternance</title></head>
-<body><h1>Centralternance</h1></body></html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Centralternance</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">Centralternance</span>
+    <button type="button" id="btn-menu" class="link" hidden>← Menu</button>
+  </header>
+
+  <main>
+    <!-- 1. Onboarding -->
+    <section id="screen-onboarding" class="screen" hidden>
+      <h1>Bienvenue</h1>
+      <p class="lead">Chargez votre CV une fois. Ensuite, chaque lettre ou message se génère en quelques secondes.</p>
+      <form id="form-onboarding" novalidate>
+        <label class="field">
+          <span>Votre CV (PDF)</span>
+          <input type="file" id="cv-file" accept="application/pdf,.pdf">
+        </label>
+        <p id="cv-status" class="status" aria-live="polite"></p>
+
+        <fieldset>
+          <legend>Mon alternance à CentraleSupélec</legend>
+          <label class="field"><span>Rythme</span>
+            <input id="cs-rythme" value="3 semaines en entreprise / 1 semaine à l'école" maxlength="200"></label>
+          <label class="field"><span>Date de début</span>
+            <input id="cs-debut" value="septembre 2027" maxlength="200"></label>
+          <label class="field"><span>Durée</span>
+            <input id="cs-duree" value="3 ans" maxlength="200"></label>
+        </fieldset>
+
+        <label class="field">
+          <span>Modèle de lettre <em>(facultatif)</em></span>
+          <textarea id="modele" rows="6" maxlength="6000"
+            placeholder="Collez une lettre de motivation que vous avez déjà écrite. L'IA reprendra votre ton et votre structure."></textarea>
+        </label>
+
+        <button type="submit" id="btn-start" class="btn primary" disabled>Commencer</button>
+      </form>
+    </section>
+
+    <!-- 2. Menu -->
+    <section id="screen-menu" class="screen" hidden>
+      <h1>Que voulez-vous faire ?</h1>
+      <div class="cards">
+        <button type="button" id="card-offre" class="card">
+          <strong>Répondre à une offre</strong>
+          <span>Collez l'offre, obtenez une lettre de motivation.</span>
+        </button>
+        <button type="button" id="card-spontane" class="card">
+          <strong>Candidature spontanée</strong>
+          <span>Indiquez qui contacter, obtenez un email et un message LinkedIn.</span>
+        </button>
+      </div>
+      <p><button type="button" id="link-edit-profile" class="link">Modifier mon CV / mes infos</button></p>
+    </section>
+
+    <!-- 3. Offre -->
+    <section id="screen-offre" class="screen" hidden>
+      <h1>Répondre à une offre</h1>
+      <form id="form-offre" novalidate>
+        <label class="field">
+          <span>Collez l'offre ici</span>
+          <textarea id="offre" rows="14" maxlength="10000" placeholder="Intitulé, missions, profil recherché…"></textarea>
+        </label>
+        <p id="err-offre" class="error" hidden></p>
+        <button type="submit" id="btn-gen-lettre" class="btn primary" disabled>Générer la lettre</button>
+      </form>
+    </section>
+
+    <!-- 4. Spontané -->
+    <section id="screen-spontane" class="screen" hidden>
+      <h1>Candidature spontanée</h1>
+      <form id="form-spontane" novalidate>
+        <label class="field"><span>Prénom et nom du contact</span>
+          <input id="c-nom" maxlength="200" placeholder="Marie Martin"></label>
+        <label class="field"><span>Entreprise</span>
+          <input id="c-entreprise" maxlength="200" placeholder="Thales"></label>
+        <label class="field"><span>Son poste</span>
+          <input id="c-poste-contact" maxlength="200" placeholder="Responsable de l'équipe data"></label>
+        <label class="field"><span>Poste que vous visez</span>
+          <input id="c-poste-vise" maxlength="200" placeholder="Alternant ingénieur data"></label>
+        <p id="err-spontane" class="error" hidden></p>
+        <button type="submit" id="btn-gen-spontane" class="btn primary" disabled>Générer les messages</button>
+      </form>
+    </section>
+
+    <!-- 5. Résultat -->
+    <section id="screen-resultat" class="screen" hidden>
+      <h1>Votre candidature</h1>
+      <p class="lead">Relisez, modifiez si besoin, puis copiez.</p>
+
+      <div id="result-lettre" hidden>
+        <label class="field"><span>Lettre de motivation</span>
+          <textarea id="lettre-text" rows="22"></textarea></label>
+        <div class="actions">
+          <button type="button" id="btn-copy-lettre" class="btn">Copier</button>
+          <button type="button" id="btn-print" class="btn">Télécharger en PDF</button>
+        </div>
+      </div>
+
+      <div id="result-spontane" hidden>
+        <label class="field"><span>Objet de l'email</span>
+          <input id="objet-text"></label>
+        <div class="actions"><button type="button" id="btn-copy-objet" class="btn">Copier l'objet</button></div>
+
+        <label class="field"><span>Email</span>
+          <textarea id="email-text" rows="12"></textarea></label>
+        <div class="actions"><button type="button" id="btn-copy-email" class="btn">Copier l'email</button></div>
+
+        <label class="field"><span>Message LinkedIn</span>
+          <textarea id="linkedin-text" rows="7"></textarea></label>
+        <div class="actions"><button type="button" id="btn-copy-linkedin" class="btn">Copier le message LinkedIn</button></div>
+      </div>
+
+      <div class="actions bottom">
+        <button type="button" id="btn-new" class="btn primary">Nouvelle candidature</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Zone imprimée uniquement (export PDF de la lettre) -->
+  <div id="print-area" aria-hidden="true"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
